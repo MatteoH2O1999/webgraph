@@ -747,7 +747,7 @@ public class SumSweepDirectedDiameterRadius {
 			LOGGER.debug("Performing initial SumSweep visit from " + start + ".");
 		this.stepSumSweep(start, true);
 
-		for (int i = 2; i < iter; i++) {
+		for (int i = 2; i <= iter; i++) {
 			if (i % 2 == 0) {
 				final int v = argMax(totDistB, lB, toCompleteB);
 				if (DEBUG)
