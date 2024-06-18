@@ -1,3 +1,6 @@
+.idea/
 dist/
 jars/
+target/
 pom.xml
+*.iml
