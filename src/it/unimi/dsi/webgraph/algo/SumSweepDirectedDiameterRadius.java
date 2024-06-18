@@ -1050,7 +1050,7 @@ public class SumSweepDirectedDiameterRadius {
 
 		sumSweepHeuristic(maxDegVert, 6);
 
-		final double points[] = new double[6];
+		final double points[] = new double[5];
 		int missingNodes = findMissingNodes(), oldMissingNodes = missingNodes;
 
 		Arrays.fill(points, graph.numNodes());
@@ -1084,11 +1084,6 @@ public class SumSweepDirectedDiameterRadius {
 				if (DEBUG)
 					LOGGER.debug("Performing a backward BFS, from a vertex maximizing the distance sum.");
 				this.stepSumSweep(argMax(totDistB, uB, toCompleteB), false);
-				break;
-			case 5:
-				if (DEBUG)
-					LOGGER.debug("Performing a forward BFS, from a vertex maximizing the distance sum.");
-				this.stepSumSweep(argMax(totDistF, uF, toCompleteF), false);
 				break;
 			}
 			oldMissingNodes = missingNodes;
