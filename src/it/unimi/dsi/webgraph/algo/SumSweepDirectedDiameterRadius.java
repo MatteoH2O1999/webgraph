@@ -369,11 +369,34 @@ public class SumSweepDirectedDiameterRadius {
 	 *            that are in the biggest strongly connected component, or that
 	 *            are able to reach the biggest strongly connected component.
 	 */
-	public SumSweepDirectedDiameterRadius(final ImmutableGraph graph, final OutputLevel output,
+	public SumSweepDirectedDiameterRadius(final ImmutableGraph graph, final OutputLevel output, final boolean[] accRadial, final ProgressLogger pl) {
+		this(graph, Transform.transpose(graph), output, accRadial, pl);
+	}
+
+	/**
+	 * Creates a new class for computing diameter and/or radius and/or all
+	 * eccentricities.
+	 *
+	 * @param graph
+	 *            a graph.
+	 * @param revgraph
+	 *            the transposed graph
+	 * @param pl
+	 *            a progress logger, or {@code null}.
+	 * @param output
+	 *            which output is requested: radius, diameter, radius and
+	 *            diameter, or all eccentricities.
+	 * @param accRadial
+	 *            the set of vertices that can be considered radial vertices. If
+	 *            null, the set is automatically chosen as the set of vertices
+	 *            that are in the biggest strongly connected component, or that
+	 *            are able to reach the biggest strongly connected component.
+	 */
+	public SumSweepDirectedDiameterRadius(final ImmutableGraph graph, final ImmutableGraph revgraph, final OutputLevel output,
 			final boolean[] accRadial, final ProgressLogger pl) {
 		this.pl = pl;
 		this.graph = graph;
-		this.revgraph = Transform.transpose(graph);
+		this.revgraph = revgraph;
 		this.nn = graph.numNodes();
 		this.eccF = new int[nn];
 		this.eccB = new int[nn];
@@ -1133,6 +1156,7 @@ public class SumSweepDirectedDiameterRadius {
 
 		final boolean mapped = jsapResult.getBoolean("mapped", false);
 		final String graphBasename = jsapResult.getString("graphBasename");
+		final String revgraphBasename = graphBasename + "-t";
 		final ProgressLogger progressLogger = new ProgressLogger(LOGGER, "nodes");
 		final OutputLevel level = Enum.valueOf(OutputLevel.class,
 				jsapResult.getObject("level").toString().toUpperCase());
@@ -1144,10 +1168,14 @@ public class SumSweepDirectedDiameterRadius {
 
 		ImmutableGraph graph = mapped ? ImmutableGraph.loadMapped(graphBasename, progressLogger)
 				: ImmutableGraph.load(graphBasename, progressLogger);
-		if (jsapResult.userSpecified("expand"))
+		ImmutableGraph revgraph = mapped ? ImmutableGraph.loadMapped(revgraphBasename, progressLogger)
+				: ImmutableGraph.load(revgraphBasename, progressLogger);
+		if (jsapResult.userSpecified("expand")) {
 			graph = new ArrayListMutableGraph(graph).immutableView();
+			revgraph = new ArrayListMutableGraph(revgraph).immutableView();
+		}
 
-		final SumSweepDirectedDiameterRadius ss = new SumSweepDirectedDiameterRadius(graph, level, null, progressLogger);
+		final SumSweepDirectedDiameterRadius ss = new SumSweepDirectedDiameterRadius(graph, revgraph, level, null, progressLogger);
 		ss.compute();
 		if (level != OutputLevel.DIAMETER)
 			System.out.println("Radius: " + ss.rU + " (" + ss.iterR + " iterations).");
